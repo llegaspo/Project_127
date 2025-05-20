@@ -7,7 +7,6 @@ import Menu from '@/components/menu/menu-texts';
 import Link from 'next/link';
 import Image from 'next/image';
 
-
 const buttonStyle = {
   display: 'flex',
   justifyContent: 'flex-end',
