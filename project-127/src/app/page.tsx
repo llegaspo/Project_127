@@ -1,103 +1,124 @@
-import Image from "next/image";
+'use client';
+import { useState, useEffect } from 'react';
+import LoginModal from '@/components/modals/login';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import Menu from '@/components/menu/menu-texts';
+import Link from 'next/link';
+import Image from 'next/image';
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+const buttonStyle = {
+  display: 'flex',
+  justifyContent: 'flex-end',
+  alignItems: 'flex-start',
+  padding: 0,
+  boxSizing: 'border-box:',
+  width: '100%'
+}
+export default function Login(){
+  const [ open, setOpen ] = useState(false);
+  const [ email, setEmail ] = useState('');
+  const [ password, setPassword ] = useState('');
+  const [ login, setLogin ] = useState(false);
+  const [ error, setError ] = useState('');
+
+  const handleLoginClick = () => {
+    if(!email || !password){
+      setError('Please enter both email and password');
+    }
+
+    if(email === 'admin@legaspo.com' && password === 'legaspo123'){
+      setLogin(true);
+      setError('');
+      setOpen(false);
+    }
+    else{
+      setError('Invalid credentials');
+    }
+  }
+
+  const openModal = () => setOpen(true);
+
+  const closeModal = () => {
+    setOpen(false);
+    setEmail('');
+    setPassword('');
+    setError('');
+  }
+
+  const images = [
+  '/scifed.jpg',
+  '/set.jpg',
+  '/kapehan.jpg',
+];
+
+const [currentIndex, setCurrentIndex] = useState(0);
+
+useEffect(() => {
+  const interval = setInterval(() => {
+    setCurrentIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
+  }, 5000);
+  return () => clearInterval(interval);
+}, []);
+
+const prevSlide = () => {
+  setCurrentIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
+};
+
+const nextSlide = () => {
+  setCurrentIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
+};
+
+  return(
+    <>
+    <header className="header-bar">
+    <Menu className="nav-links" activeLink = "overview">
+    <Box sx={buttonStyle}>
+    <Button onClick={openModal} variant='outlined'
+        sx={{
+            color:'#FFFFFF',
+            borderColor: '#FFFFFF',
+            whiteSpace: 'nowrap',
+            '&:hover': {
+              borderColor: '#660000',
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              color: '#800000'
+            },
+            mt: 2,
+            mr: 3
+          }}>Log in</Button>
+    </Box>
+    <LoginModal
+      open={open}
+      onClose={closeModal}>
+    </LoginModal>
+    </Menu>
+    </header>
+
+  <div className="carousel-container">
+    <div
+      className="carousel-image-wrapper"
+      style={{
+        position: 'relative',
+        width: '100vw',
+        height: '50vh',
+      }}
+    >
+      <Image
+        src={images[currentIndex]}
+        alt={`Slide ${currentIndex + 1}`}
+        fill
+        style={{ objectFit: 'cover' }}
+        priority={true}
+      />
+
+      {/* Arrows placed inside image wrapper so they're on top */}
+      <div className="carousel-arrow left" onClick={prevSlide}>&#10094;</div>
+      <div className="carousel-arrow right" onClick={nextSlide}>&#10095;</div>
     </div>
-  );
+</div>
+    </>
+  )
+
 }
