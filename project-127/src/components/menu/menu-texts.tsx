@@ -14,7 +14,7 @@ export default function Menu({
     <>
       <header className="header-bar">
         <nav className="nav-links">
-          <Link href="/overview" className={activeLink === 'overview' ? 'active' : ''}>Overview</Link>
+          <Link href="/" className={activeLink === 'overview' ? 'active' : ''}>Overview</Link>
           <Link href="/calendar" className={activeLink === 'calendar' ? 'active' : ''}>Calendar</Link>
           <Link href="/events" className={activeLink === 'events' ? 'active' : ''}>Events</Link>
         </nav>
