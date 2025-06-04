@@ -207,7 +207,7 @@ export default function Events() {
         {/* Floating Add Button */}
         <button
           onClick={() => setShowModal(true)}
-          className='fixed bottom-6 right-6 bg-red-700 hover:bg-red-600 text-white p-4 rounded-full shadow-lg text-3xl'
+        className="fixed bottom-6 right-6 bg-red-700 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
         >
           +
         </button>
