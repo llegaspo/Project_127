@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  devIndicators: false
+  devIndicators: false,
   images: {
     domains: [
       'scontent.fmnl30-2.fna.fbcdn.net',

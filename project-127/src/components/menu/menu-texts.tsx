@@ -4,6 +4,7 @@ import LoginModal from '@/components/modals/login';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Image from 'next/image';
+import InfoIcon from './info-icon';
 
 export default function Menu({
   children,
@@ -59,12 +60,6 @@ export default function Menu({
   return (
     <>
       <header className="header-bar flex items-center justify-between px-4 py-2 relative">
-        {/* Left side: Info Icon */}
-        <div className="ml-5">
-          <InfoIcon tooltip="Info" onClick={openModal} />
-        </div>
-
-
         {/* Center or Right side: Nav links */}
         <nav className="nav-links flex gap-4 mx-auto">
           <Link href="/" className={activeLink === 'overview' ? 'active' : ''}>Overview</Link>
@@ -102,28 +97,16 @@ export default function Menu({
         {children}
       </main>
 
-      {/* Information Button with direct image */}
+      {/* Information Button linking to another page */}
       <div className="info-button-wrapper">
-        <button 
-          onClick={toggleInfo}
-          className="info-button"
-          aria-label="Information"
-        >
-          <Image
-            src="/icon.png"
-            alt="Information"
-            width={40}
-            height={40}
-          />
-        </button>
-        
-        {showInfo && (
-          <div className="info-popup">
-            <h3>Website Information</h3>
-            <p>This is your information content. Add any helpful details here.</p>
-            <p>Version 1.0.0</p>
-          </div>
-        )}
+        <Link href="/fb-pages" passHref>
+            <Image
+              src="/icon.png"
+              alt="Information"
+              width={40}
+              height={40}
+            />
+        </Link>
       </div>
 
       <style jsx>{`
@@ -145,32 +128,12 @@ export default function Menu({
           justify-content: center;
           box-shadow: 0 2px 5px rgba(0,0,0,0.2);
           transition: all 0.3s ease;
+          background: transparent;
         }
         
         .info-button:hover {
           background-color: #6a102e;
           transform: scale(1.1);
-        }
-        
-        .info-popup {
-          position: absolute;
-          bottom: 60px;
-          left: 0;
-          background: white;
-          padding: 15px;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-          width: 250px;
-          color: #333;
-        }
-        
-        .info-popup h3 {
-          margin-top: 0;
-          color: #84183C;
-        }
-        
-        .info-popup p {
-          margin: 8px 0;
         }
       `}</style>
     </>
