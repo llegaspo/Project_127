@@ -21,19 +21,19 @@ const initialFbPages: Record<PageType, FbPage[]> = {
       link: 'https://www.facebook.com/upcebuofficial'
     },
     {
-      name: 'University of the Philippines Cebu',
-      image: '/upcebu.jpg',
-      link: 'https://www.facebook.com/upcebuofficial'
+      name: 'UP Cebu Office of the University Registrar',
+      image: '/our.jpg',
+      link: 'https://www.facebook.com/our.upcebu'
     },
     {
-      name: 'University of the Philippines Cebu',
-      image: '/upcebu.jpg',
-      link: 'https://www.facebook.com/upcebuofficial'
+      name: 'UP Cebu Office of Student Affairs',
+      image: '/osa.jpg',
+      link: 'https://www.facebook.com/osa.upcebu'
     },
     {
-      name: 'University of the Philippines Cebu',
-      image: '/upcebu.jpg',
-      link: 'https://www.facebook.com/upcebuofficial'
+      name: 'UP Cebu Teaching and Learning Resource Center',
+      image: '/tlrc.jpg',
+      link: 'https://www.facebook.com/upcebutlrc'
     }
   ],
   organizations: [
