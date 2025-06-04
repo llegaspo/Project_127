@@ -1,123 +1,174 @@
 'use client';
-import { useState, useEffect } from 'react';
-import LoginModal from '@/components/modals/login';
-import Button from '@mui/material/Button';
-import Box from '@mui/material/Box';
+import { useState, useEffect, useRef } from 'react';
 import Menu from '@/components/menu/menu-texts';
 import Link from 'next/link';
 import Image from 'next/image';
 
-const buttonStyle = {
-  display: 'flex',
-  justifyContent: 'flex-end',
-  alignItems: 'flex-start',
-  padding: 0,
-  boxSizing: 'border-box:',
-  width: '100%'
-}
 export default function Login(){
-  const [ open, setOpen ] = useState(false);
-  const [ email, setEmail ] = useState('');
-  const [ password, setPassword ] = useState('');
-  const [ login, setLogin ] = useState(false);
-  const [ error, setError ] = useState('');
-
-  const handleLoginClick = () => {
-    if(!email || !password){
-      setError('Please enter both email and password');
-    }
-
-    if(email === 'admin@legaspo.com' && password === 'legaspo123'){
-      setLogin(true);
-      setError('');
-      setOpen(false);
-    }
-    else{
-      setError('Invalid credentials');
-    }
-  }
-
-  const openModal = () => setOpen(true);
-
-  const closeModal = () => {
-    setOpen(false);
-    setEmail('');
-    setPassword('');
-    setError('');
-  }
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [transitionDirection, setTransitionDirection] = useState('right');
+  const [isHovered, setIsHovered] = useState(false);
+  const timeoutRef = useRef(null);
 
   const images = [
-  '/scifed.jpg',
-  '/set.jpg',
-  '/kapehan.jpg',
-];
+    '/scifed.jpg',
+    '/set.jpg',
+    '/kapehan.jpg',
+  ];
 
-const [currentIndex, setCurrentIndex] = useState(0);
+  const slideTo = (direction, newIndex) => {
+    setTransitionDirection(direction);
+    setCurrentIndex(newIndex);
+  };
 
-useEffect(() => {
-  const interval = setInterval(() => {
-    setCurrentIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
-  }, 5000);
-  return () => clearInterval(interval);
-}, []);
+  const prevSlide = () => {
+    clearTimeout(timeoutRef.current);
+    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
+    slideTo('left', newIndex);
+    resetTimer();
+  };
 
-const prevSlide = () => {
-  setCurrentIndex(prev => prev === 0 ? images.length - 1 : prev - 1);
-};
+  const nextSlide = () => {
+    clearTimeout(timeoutRef.current);
+    const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
+    slideTo('right', newIndex);
+    resetTimer();
+  };
 
-const nextSlide = () => {
-  setCurrentIndex(prev => prev === images.length - 1 ? 0 : prev + 1);
-};
+  const resetTimer = () => {
+    clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      nextSlide();
+    }, 5000);
+  };
 
-  return(
-    <>
-    <header className="header-bar">
-    <Menu className="nav-links" activeLink = "overview">
-    <Box sx={buttonStyle}>
-    <Button onClick={openModal} variant='outlined'
-        sx={{
-            color:'#FFFFFF',
-            borderColor: '#FFFFFF',
-            whiteSpace: 'nowrap',
-            '&:hover': {
-              borderColor: '#660000',
-              backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              color: '#800000'
-            },
-            mt: 2,
-            mr: 3
-          }}>Log in</Button>
-    </Box>
-    <LoginModal
-      open={open}
-      onClose={closeModal}>
-    </LoginModal>
-    </Menu>
-    </header>
+  useEffect(() => {
+    resetTimer();
+    return () => clearTimeout(timeoutRef.current);
+  }, [currentIndex]);
 
-  <div className="carousel-container">
-    <div
-      className="carousel-image-wrapper"
-      style={{
+  return (
+    <Menu activeLink="overview">
+      <div style={{
         position: 'relative',
-        width: '100vw',
-        height: '50vh',
+        width: '100%',
+        height: '90vh',
+        overflow: 'hidden'
       }}
-    >
-      <Image
-        src={images[currentIndex]}
-        alt={`Slide ${currentIndex + 1}`}
-        fill
-        style={{ objectFit: 'cover' }}
-        priority={true}
-      />
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* Blurred Background */}
+        <div style={{
+          position: 'absolute',
+          width: '100%',
+          height: '100%',
+          filter: 'blur(8px)',
+          zIndex: 1,
+          alignItems: 'center'
+        }}>
+          <Image
+            src={images[currentIndex]}
+            alt="Background"
+            fill
+            style={{ objectFit: 'cover' }}
+            quality={30}
+            priority
+          />
+        </div>
 
-      {/* Arrows placed inside image wrapper so they're on top */}
-      <div className="carousel-arrow left" onClick={prevSlide}>&#10094;</div>
-      <div className="carousel-arrow right" onClick={nextSlide}>&#10095;</div>
-    </div>
-</div>
-    </>
-  )
+        {/* Animated Slides */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 2
+        }}>
+          {images.map((image, index) => (
+            <div
+              key={image}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                transition: 'transform 0.8s ease-in-out, opacity 0.8s ease-in-out',
+                transform: index === currentIndex 
+                  ? 'translateX(0)' 
+                  : index < currentIndex 
+                    ? 'translateX(-100%)' 
+                    : 'translateX(100%)',
+                opacity: index === currentIndex ? 1 : 0,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <Image
+                src={image}
+                alt={`Slide ${index + 1}`}
+                width={0}
+                height={0}
+                sizes="100vw"
+                style={{
+                  width: 'auto',
+                  height: 'auto',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  objectFit: 'contain'
+                }}
+                priority={index === currentIndex}
+              />
+            </div>
+          ))}
+        </div>
 
+        {/* Navigation Arrows */}
+        <div 
+          onClick={prevSlide}
+          style={{
+            position: 'absolute',
+            left: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 3,
+            cursor: 'pointer',
+            fontSize: '3rem',
+            color: 'white',
+            textShadow: '0 0 5px rgba(0,0,0,0.5)',
+            userSelect: 'none',
+            opacity: isHovered ? 1 : 0,
+            transition: 'opacity 0.3s ease'
+          }}
+        >
+          &#10094;
+        </div>
+        <div 
+          onClick={nextSlide}
+          style={{
+            position: 'absolute',
+            right: '20px',
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 3,
+            cursor: 'pointer',
+            fontSize: '3rem',
+            color: 'white',
+            textShadow: '0 0 5px rgba(0,0,0,0.5)',
+            userSelect: 'none',
+            opacity: isHovered ? 1 : 0,
+            transition: 'opacity 0.3s ease'
+          }}
+        >
+          &#10095;
+        </div>
+      </div>
+
+      {/* Text */}
+      <div className="title-style">
+        What's UP, mga Iskolar ng Bayan?
+      </div>
+    </Menu>
+  );
 }
