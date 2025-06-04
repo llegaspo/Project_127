@@ -86,7 +86,10 @@ export default function Menu({
           handleLoginClick={handleLoginClick}
         />
       </header>
-      <main>{children}</main>
+      {/* Add padding-top to push content below the fixed header */}
+      <main className="main-content">
+        {children}
+      </main>
     </>
   );
 }
