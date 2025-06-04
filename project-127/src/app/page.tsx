@@ -4,17 +4,50 @@ import Menu from '@/components/menu/menu-texts';
 import Link from 'next/link';
 import Image from 'next/image';
 
+interface EventCardProps {
+  imageSrc: string;
+  date: string;
+  org: string;
+  title: string;
+  description: string;
+}
+
 export default function Login(){
   const [currentIndex, setCurrentIndex] = useState(0);
   const [transitionDirection, setTransitionDirection] = useState('right');
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef(null);
+  const [events, setEvents] = useState<EventCardProps[]>([]);
 
   const images = [
     '/scifed.jpg',
     '/set.jpg',
     '/kapehan.jpg',
   ];
+
+  // Fetch events from localStorage or API
+  useEffect(() => {
+    // This could be replaced with an API call in a real application
+    const storedEvents = typeof window !== 'undefined' ? localStorage.getItem('events') : null;
+    if (storedEvents) {
+      try {
+        setEvents(JSON.parse(storedEvents));
+      } catch (e) {
+        console.error('Failed to parse events', e);
+      }
+    }
+
+    // Listen for changes to events in localStorage
+    const handleStorageChange = () => {
+      const updatedEvents = localStorage.getItem('events');
+      if (updatedEvents) {
+        setEvents(JSON.parse(updatedEvents));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const slideTo = (direction, newIndex) => {
     setTransitionDirection(direction);
@@ -169,6 +202,44 @@ export default function Login(){
       <div className="title-style">
         What's UP, mga Iskolar ng Bayan?
       </div>
+
+      <div className="text">
+        Interested to know the various activities and announcements the UP Cebu organization have in store for us? You came at the right place! Get connected and stay informed, mga Iskolar ng Bayan!
+      </div>
+
+      {/* Announcements Section */}
+{events.length > 0 && (
+  <div className="mt-20 mx-4 md:mx-8 lg:mx-5 mb-8">
+    <h2 className="text-2xl font-bold text-purple-900 mb-6">Latest Announcements</h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {events.slice(0, 3).map((event, index) => (
+        <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"> {/* Added hover effect */}
+          <img
+            src={event.imageSrc}
+            alt="Event"
+            className="w-full h-40 object-cover"
+          />
+          <div className="p-4">
+            <h3 className="text-sm text-gray-500 mb-1">
+              {event.date} | <span className="text-blue-600">{event.org}</span>
+            </h3>
+            <h2 className="text-lg font-bold text-purple-800 mb-2">{event.title}</h2>
+            <p className="text-sm text-gray-700">
+              {event.description.length > 100 
+                ? `${event.description.substring(0, 100)}...` 
+                : event.description}
+            </p>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div className="mt-6 text-right"> {/* Increased top margin */}
+      <Link href="/events" className="text-red-700 hover:underline font-medium"> {/* Added font-medium */}
+        View all announcements →
+      </Link>
+    </div>
+  </div>
+)}
     </Menu>
   );
 }

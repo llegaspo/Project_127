@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Menu from '@/components/menu/menu-texts';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -161,6 +161,11 @@ export default function Events() {
     date: '',
     link: ''
   });
+
+  useEffect(() => {
+  // Save events to localStorage whenever they change
+  localStorage.setItem('events', JSON.stringify(events));
+}, [events]);
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.description || !newEvent.imageSrc || !newEvent.date) return;

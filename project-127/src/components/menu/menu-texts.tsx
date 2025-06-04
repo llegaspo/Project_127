@@ -60,6 +60,18 @@ export default function Menu({
   return (
     <>
       <header className="header-bar flex items-center justify-between px-4 py-2 relative">
+        {/* Left side: Logo and App Title */}
+        <div className="flex items-center ml-4">
+          <Image 
+            src="/appicon.png" 
+            alt="App Logo" 
+            width={40} 
+            height={40} 
+            className="mr-2"
+          />
+          <h1 className="text-xl font-bold text-white">What's UP?</h1>
+        </div>
+
         {/* Center or Right side: Nav links */}
         <nav className="nav-links flex gap-4 mx-auto">
           <Link href="/" className={activeLink === 'overview' ? 'active' : ''}>Overview</Link>
