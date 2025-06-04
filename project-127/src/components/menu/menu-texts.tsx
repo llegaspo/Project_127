@@ -3,6 +3,7 @@ import { ReactNode, useState } from 'react';
 import LoginModal from '@/components/modals/login';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
+import Image from 'next/image';
 import InfoIcon from './info-icon';
 
 export default function Menu({
@@ -17,6 +18,7 @@ export default function Menu({
   const [password, setPassword] = useState('');
   const [login, setLogin] = useState(false);
   const [error, setError] = useState('');
+  const [showInfo, setShowInfo] = useState(false);
 
   const handleLoginClick = () => {
     if(!email || !password){
@@ -42,6 +44,8 @@ export default function Menu({
     setError('');
   }
 
+  const toggleInfo = () => setShowInfo(!showInfo);
+
   const buttonStyle = {
     display: 'flex',
     justifyContent: 'flex-end',
@@ -56,12 +60,6 @@ export default function Menu({
   return (
     <>
       <header className="header-bar flex items-center justify-between px-4 py-2 relative">
-        {/* Left side: Info Icon */}
-        <div className="ml-5">
-          <InfoIcon tooltip="Info" onClick={openModal} />
-        </div>
-
-
         {/* Center or Right side: Nav links */}
         <nav className="nav-links flex gap-4 mx-auto">
           <Link href="/" className={activeLink === 'overview' ? 'active' : ''}>Overview</Link>
@@ -94,10 +92,50 @@ export default function Menu({
           handleLoginClick={handleLoginClick}
         />
       </header>
-      {/* Add padding-top to push content below the fixed header */}
+      
       <main className="main-content">
         {children}
       </main>
+
+      {/* Information Button linking to another page */}
+      <div className="info-button-wrapper">
+        <Link href="/fb-pages" passHref>
+            <Image
+              src="/icon.png"
+              alt="Information"
+              width={40}
+              height={40}
+            />
+        </Link>
+      </div>
+
+      <style jsx>{`
+        .info-button-wrapper {
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          z-index: 1000;
+        }
+        
+        .info-button {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: none;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+          transition: all 0.3s ease;
+          background: transparent;
+        }
+        
+        .info-button:hover {
+          background-color: #6a102e;
+          transform: scale(1.1);
+        }
+      `}</style>
     </>
   );
 }
