@@ -19,6 +19,21 @@ const initialFbPages: Record<PageType, FbPage[]> = {
       name: 'University of the Philippines Cebu',
       image: '/upcebu.jpg',
       link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'University of the Philippines Cebu',
+      image: '/upcebu.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'University of the Philippines Cebu',
+      image: '/upcebu.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'University of the Philippines Cebu',
+      image: '/upcebu.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
     }
   ],
   organizations: [
@@ -26,9 +41,39 @@ const initialFbPages: Record<PageType, FbPage[]> = {
       name: 'UP Cebu University Student Council',
       image: '/upcusc.jpg',
       link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'UP Cebu University Student Council',
+      image: '/upcusc.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'UP Cebu University Student Council',
+      image: '/upcusc.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'UP Cebu University Student Council',
+      image: '/upcusc.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
     }
   ],
   federations: [
+    {
+      name: 'UP Cebu Sciences Federation',
+      image: '/scions.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'UP Cebu Sciences Federation',
+      image: '/scions.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      name: 'UP Cebu Sciences Federation',
+      image: '/scions.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
+    },
     {
       name: 'UP Cebu Sciences Federation',
       image: '/scions.jpg',
@@ -73,18 +118,18 @@ export default function FacebookPages() {
     <div className="relative flex flex-col min-h-screen">
       <Menu activeLink="fb-pages">
         <main className="flex-grow p-8 mx-auto max-w-7xl w-full">
-          <h1 className="text-4xl font-bold text-purple-900 text-center mb-6">UP Cebu Facebook Pages</h1>
+          <h1 className="text-4xl font-bold text-[#89132f] text-center mb-6">UP Cebu Facebook Pages</h1>
 
           {Object.entries(fbPages).map(([section, pages]) => (
             <div key={section} className="mb-8">
-              <h2 className="text-2xl font-semibold mb-4 capitalize text-[#89132f]">
+              <h2 className="text-2xl font-semibold mb-4 capitalize text-red-800">
                 {section === 'organizations'
                   ? 'Student Organizations'
                   : section === 'federations'
                   ? 'College Federations'
                   : section.replace(/^\w/, c => c.toUpperCase())}
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-center text-gray-500">
                 {pages.map((page, idx) => (
                   <div key={idx} className="relative flex flex-col items-center">
                     <button
@@ -124,7 +169,7 @@ export default function FacebookPages() {
       {/* Floating + Button */}
       <button
         onClick={() => setShowModal(true)}
-        className="fixed bottom-6 right-6 bg-red-700 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
+        className="fixed bottom-6 right-6 bg-red-900 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
       >
         +
       </button>
@@ -174,7 +219,7 @@ export default function FacebookPages() {
                 </button>
                 <button
                   onClick={handleAddPage}
-                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800"
+                  className="px-4 py-2 bg-red-900 text-white rounded hover:bg-red-800"
                 >
                   Add
                 </button>

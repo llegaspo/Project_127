@@ -76,11 +76,11 @@ const EventCard: React.FC<EventCardProps> = ({
       <div className="p-4 flex-1 flex flex-col">
         <h3 className="text-sm text-gray-500 mb-1">
           {formattedDate} | {orgLink ? (
-            <a href={orgLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+            <a href={orgLink} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">
               {org}
             </a>
           ) : (
-            <span className="text-blue-600">{org}</span>
+            <span className="text-red-600">{org}</span>
           )}
         </h3>
         {link ? (
@@ -88,12 +88,12 @@ const EventCard: React.FC<EventCardProps> = ({
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-lg font-bold text-purple-800 mb-2 hover:underline"
+            className="text-lg font-bold text-red-800 mb-2 hover:underline"
           >
             {title}
           </a>
         ) : (
-          <h2 className="text-lg font-bold text-purple-800 mb-2">{title}</h2>
+          <h2 className="text-lg font-bold text-red-800 mb-2">{title}</h2>
         )}
         <p className="text-sm text-gray-700 flex-grow">{truncatedDescription}</p>
         {description.length > previewLength && (
@@ -106,7 +106,7 @@ const EventCard: React.FC<EventCardProps> = ({
               date: formattedDate,
               link
             })}
-            className="mt-3 text-xs text-pink-600 font-semibold hover:underline self-start"
+            className="mt-3 text-xs text-red-600 font-semibold hover:underline self-start"
           >
             READ MORE
           </button>
@@ -200,7 +200,7 @@ export default function Events() {
   return (
     <Menu activeLink="events" openModal={() => { }}>
       <div className="p-6 relative">
-        <h1 className="text-4xl font-bold text-purple-900 mb-6">Events and Announcements</h1>
+        <h1 className="text-4xl font-bold text-red-900 mb-6">Events and Announcements</h1>
 
         <div className="mb-4 flex flex-col md:flex-row items-center justify-between gap-4">
           <input
@@ -239,7 +239,7 @@ export default function Events() {
         {/* Floating Add Button */}
         <button
           onClick={() => setShowModal(true)}
-          className="fixed bottom-6 right-6 bg-red-700 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
+          className="fixed bottom-6 right-6 bg-red-900 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
         >
           +
         </button>
@@ -306,7 +306,7 @@ export default function Events() {
                   Cancel
                 </button>
                 <button
-                  className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-600"
+                  className="px-4 py-2 bg-red-900 text-white rounded hover:bg-red-800"
                   onClick={handleAddEvent}
                 >
                   Add Event
@@ -336,7 +336,7 @@ export default function Events() {
             {/* Back to Events button at the top left */}
             <button
               onClick={() => setFullScreenEvent(null)}
-              className="fixed top-20 left-4 z-50 bg-red-700 text-white px-4 py-2 rounded-lg shadow hover:bg-red-800 transition-colors flex items-center gap-2"
+              className="fixed top-20 left-4 z-50 bg-red-900 text-white px-4 py-2 rounded-lg shadow hover:bg-red-800 transition-colors flex items-center gap-2"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
@@ -375,16 +375,16 @@ export default function Events() {
               </div>
 
               <div className="bg-white p-6 w-full border-t border-gray-200">
-                <h2 className="text-2xl font-bold text-purple-800 mb-2">
+                <h2 className="text-2xl font-bold text-red-800 mb-2">
                   {fullScreenEvent.title}
                 </h2>
                 <p className="text-sm text-gray-500 mb-4">
                   {fullScreenEvent.date} | {fullScreenEvent.orgLink ? (
-                    <a href={fullScreenEvent.orgLink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    <a href={fullScreenEvent.orgLink} target="_blank" rel="noopener noreferrer" className="text-red-900 hover:underline">
                       {fullScreenEvent.org}
                     </a>
                   ) : (
-                    <span className="text-blue-600">{fullScreenEvent.org}</span>
+                    <span className="text-gray-500">{fullScreenEvent.org}</span>
                   )}
                 </p>
                 <p className="text-gray-700 whitespace-pre-line mb-6">
@@ -397,7 +397,7 @@ export default function Events() {
                       href={fullScreenEvent.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline font-medium inline-flex items-center gap-1"
+                      className="text-red-600 hover:underline font-medium inline-flex items-center gap-1"
                     >
                       See original post on Facebook
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
