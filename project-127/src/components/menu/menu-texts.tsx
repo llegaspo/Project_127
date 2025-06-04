@@ -58,8 +58,15 @@ export default function Menu({
 
   return (
     <>
-      <header className="header-bar">
-        <nav className="nav-links">
+      <header className="header-bar flex items-center justify-between px-4 py-2 relative">
+        {/* Left side: Info Icon */}
+        <div className="ml-5">
+          <InfoIcon tooltip="Info" onClick={openModal} />
+        </div>
+
+
+        {/* Center or Right side: Nav links */}
+        <nav className="nav-links flex gap-4 mx-auto">
           <Link href="/" className={activeLink === 'overview' ? 'active' : ''}>Overview</Link>
           <Link href="/calendar" className={activeLink === 'calendar' ? 'active' : ''}>Calendar</Link>
           <Link href="/events" className={activeLink === 'events' ? 'active' : ''}>Events</Link>

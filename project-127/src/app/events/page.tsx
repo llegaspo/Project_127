@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Menu from '@/components/menu/menu-texts';
+import { v4 as uuidv4 } from 'uuid';
 
 interface EventCardProps {
   imageSrc: string;
@@ -9,8 +10,14 @@ interface EventCardProps {
   org: string;
   title: string;
   description: string;
-  onReadMore?: (event: { imageSrc: string; title: string; description: string; org: string; date: string }) => void;
+  onReadMore?: (event: { 
+    imageSrc: string; 
+    title: string; 
+    description: string; 
+    org: string; 
+    date: string }) => void;
   onImageClick?: (imageSrc: string) => void;
+  onRemove?: () => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -30,7 +37,8 @@ const EventCard: React.FC<EventCardProps> = ({
   title,
   description,
   onReadMore,
-  onImageClick
+  onImageClick,
+  onRemove
 }) => {
   const previewLength = 100;
   const formattedDate = formatDate(date);
@@ -39,7 +47,20 @@ const EventCard: React.FC<EventCardProps> = ({
     : description;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col relative">
+      {/* Add remove button in top-right corner */}
+      {onRemove && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onRemove();
+          }}
+          className="absolute top-2 right-2 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-red-500 border border-gray-300"
+          title="Remove event"
+        >
+          ×
+        </button>
+      )}
       <img
         src={imageSrc}
         alt="Event"
@@ -136,8 +157,16 @@ export default function Events() {
       return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
     });
 
+  const handleRemoveEvent = (index: number) => {
+    if (window.confirm('Are you sure you want to remove this event?')) {
+      setEvents(prev => prev.filter((_, i) => i !== index));
+    }
+  };
+
   return (
     <Menu activeLink="events" openModal={() => { }}>
+      <div className="relative">
+      </div>
       <div className="p-6 relative">
         <h1 className="text-3xl font-bold text-purple-900 mb-6">Events and Announcements</h1>
 
@@ -170,6 +199,7 @@ export default function Events() {
               {...event}
               onImageClick={(src) => setPreviewImage(src)}
               onReadMore={(event) => setFullScreenEvent(event)}
+              onRemove={() => handleRemoveEvent(events.indexOf(event))}
             />
           ))}
         </div>
@@ -177,7 +207,7 @@ export default function Events() {
         {/* Floating Add Button */}
         <button
           onClick={() => setShowModal(true)}
-          className='fixed bottom-6 right-6 bg-red-700 hover:bg-red-600 text-white p-4 rounded-full shadow-lg text-3xl'
+        className="fixed bottom-6 right-6 bg-red-700 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
         >
           +
         </button>
