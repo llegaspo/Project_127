@@ -210,7 +210,7 @@ export default function Login(){
       {/* Announcements Section */}
 {events.length > 0 && (
   <div className="mt-20 mx-4 md:mx-8 lg:mx-5 mb-8">
-    <h2 className="text-2xl font-bold text-purple-900 mb-6">Latest Announcements</h2>
+    <h2 className="text-4xl font-bold text-red-900 mb-6">Latest Announcements</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {events.slice(0, 3).map((event, index) => (
         <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"> {/* Added hover effect */}

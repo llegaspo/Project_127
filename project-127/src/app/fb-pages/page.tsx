@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 
-type PageType = 'admin' | 'organizations' | 'federations';
+type PageType = 'admin' | 'organizations' | 'federations' | 'academic';
 
 interface FbPage {
   id: string;
@@ -14,6 +14,7 @@ interface FbPage {
   image: string;
   link: string;
 }
+
 
 const initialFbPages: Record<PageType, FbPage[]> = {
   admin: [
@@ -48,6 +49,24 @@ const initialFbPages: Record<PageType, FbPage[]> = {
       name: 'UP Cebu University Student Council',
       image: '/upcusc.jpg',
       link: 'https://www.facebook.com/upcebuofficial'
+    },
+    {
+      id: '6',
+      name: 'Unified Student Organizations',
+      image: '/uniso.jpg',
+      link: 'https://www.facebook.com/upcuniso '
+    },
+    {
+      id: '7',
+      name: 'UP Cebu Tug-A  ni',
+      image: '/tugani.jpg',
+      link: 'https://www.facebook.com/upcebutugani'
+    },
+    {
+      id: '8',
+      name: 'UP Cebu University Student Council',
+      image: '/upcusc.jpg',
+      link: 'https://www.facebook.com/upcebuofficial'
     }
   ],
   federations: [
@@ -75,7 +94,8 @@ const initialFbPages: Record<PageType, FbPage[]> = {
       image: '/som.jpg',
       link: 'https://www.facebook.com/upcebusom'
     }
-  ]
+  ],
+  academic: []
 };
 
 export default function FacebookPages() {
@@ -206,6 +226,8 @@ export default function FacebookPages() {
                   ? 'Student Organizations'
                   : section === 'federations'
                   ? 'College Federations'
+                  : section == 'academic'
+                  ? 'Academic Organizations'
                   : section.replace(/^\w/, c => c.toUpperCase())}
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6 text-center text-gray-500">
@@ -304,6 +326,7 @@ export default function FacebookPages() {
                   <option value="admin">Admin</option>
                   <option value="organizations">Student Organizations</option>
                   <option value="federations">College Federations</option>
+                  <option value="academic">Academic Organizations</option>
                 </select>
               )}
               <div className="flex justify-end gap-2">
