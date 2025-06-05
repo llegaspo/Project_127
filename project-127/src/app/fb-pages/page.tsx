@@ -43,14 +43,14 @@ const initialFbPages: Record<PageType, FbPage[]> = {
       link: 'https://www.facebook.com/upcebuofficial'
     },
     {
-      name: 'UP Cebu University Student Council',
-      image: '/upcusc.jpg',
-      link: 'https://www.facebook.com/upcebuofficial'
+      name: 'Unified Student Organizations',
+      image: '/uniso.jpg',
+      link: 'https://www.facebook.com/upcuniso '
     },
     {
-      name: 'UP Cebu University Student Council',
-      image: '/upcusc.jpg',
-      link: 'https://www.facebook.com/upcebuofficial'
+      name: 'UP Cebu Tug-Ani',
+      image: '/tugani.jpg',
+      link: 'https://www.facebook.com/upcebutugani'
     },
     {
       name: 'UP Cebu University Student Council',
