@@ -23,6 +23,7 @@ interface EventCardProps {
   }) => void;
   onImageClick?: (imageSrc: string) => void;
   onRemove?: () => void;
+  onEdit?: () => void;
 }
 
 const formatDate = (dateString: string) => {
@@ -45,7 +46,8 @@ const EventCard: React.FC<EventCardProps> = ({
   link,
   onReadMore,
   onImageClick,
-  onRemove
+  onRemove,
+  onEdit
 }) => {
   const previewLength = 100;
   const formattedDate = formatDate(date);
@@ -54,67 +56,83 @@ const EventCard: React.FC<EventCardProps> = ({
     : description;
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col relative">
-      {onRemove && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          className="absolute top-2 right-2 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-red-500 border border-gray-300"
-          title="Remove event"
-        >
-          ×
-        </button>
-      )}
-      <img
-        src={imageSrc}
-        alt="Event"
-        className="w-full h-40 object-cover cursor-pointer"
-        onClick={() => onImageClick?.(imageSrc)}
-      />
-      <div className="p-4 flex-1 flex flex-col">
-        <h3 className="text-sm text-gray-500 mb-1">
-          {formattedDate} | {orgLink ? (
-            <a href={orgLink} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">
-              {org}
+      <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col relative">
+        {onRemove && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove?.();
+              }}
+              className="absolute top-2 right-2 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-red-500 border border-gray-300"
+              title="Remove event"
+            >
+              ×
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit();
+              }}
+              className="absolute top-2 right-10 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-blue-500 border border-gray-300"
+              title="Edit event"
+            >
+              ✎
+            </button>
+          </>
+        )}
+        <img
+          src={imageSrc}
+          alt="Event"
+          className="w-full h-40 object-cover cursor-pointer"
+          onClick={() => onImageClick?.(imageSrc)}
+        />
+        <div className="p-4 flex-1 flex flex-col">
+          <h3 className="text-sm text-gray-500 mb-1">
+            {formatDate(date)} | {orgLink ? (
+              <a href={orgLink} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">
+                {org}
+              </a>
+            ) : (
+              <span className="text-red-600">{org}</span>
+            )}
+          </h3>
+          {link ? (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-lg font-bold text-red-800 mb-2 hover:underline"
+            >
+              {title}
             </a>
           ) : (
-            <span className="text-red-600">{org}</span>
+            <h2 className="text-lg font-bold text-red-800 mb-2">{title}</h2>
           )}
-        </h3>
-        {link ? (
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-lg font-bold text-red-800 mb-2 hover:underline"
-          >
-            {title}
-          </a>
-        ) : (
-          <h2 className="text-lg font-bold text-red-800 mb-2">{title}</h2>
-        )}
-        <p className="text-sm text-gray-700 flex-grow">{truncatedDescription}</p>
-        {description.length > previewLength && (
-          <button
-            onClick={() => onReadMore?.({
-              imageSrc,
-              title,
-              description,
-              org,
-              date: formattedDate,
-              link
-            })}
-            className="mt-3 text-xs text-red-600 font-semibold hover:underline self-start"
-          >
-            READ MORE
-          </button>
-        )}
+          <p className="text-sm text-gray-700 flex-grow">
+            {description.length > 100 
+              ? `${description.substring(0, 100)}...` 
+              : description}
+          </p>
+          {description.length > 100 && (
+            <button
+              onClick={() => onReadMore?.({
+                imageSrc: imageSrc,
+                title: title,
+                description: description,
+                org: org,
+                date: formatDate(date),
+                link: link
+              })}
+              className="mt-3 text-xs text-red-600 font-semibold hover:underline self-start"
+            >
+              READ MORE
+            </button>
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 export default function Events() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
@@ -165,7 +183,7 @@ export default function Events() {
   useEffect(() => {
   // Save events to localStorage whenever they change
   localStorage.setItem('events', JSON.stringify(events));
-}, [events]);
+  }, [events]);
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.description || !newEvent.imageSrc || !newEvent.date) return;
@@ -202,6 +220,65 @@ export default function Events() {
     }
   };
 
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editedEvent, setEditedEvent] = useState({
+    title: '',
+    description: '',
+    org: '',
+    orgLink: '',
+    imageSrc: '',
+    date: '',
+    link: ''
+  });
+
+  // Load events from localStorage on component mount
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('events');
+    if (savedEvents) {
+      setEvents(JSON.parse(savedEvents));
+    }
+  }, []);
+
+  // Open edit modal and populate with event data
+  const handleEditClick = (index: number) => {
+    const eventToEdit = events[index];
+    setEditedEvent({
+      title: eventToEdit.title,
+      description: eventToEdit.description,
+      org: eventToEdit.org,
+      orgLink: eventToEdit.orgLink || '',
+      imageSrc: eventToEdit.imageSrc,
+      date: eventToEdit.date,
+      link: eventToEdit.link
+    });
+    setEditingIndex(index);
+    setEditModalOpen(true);
+  };
+
+  // Save edited event
+  const handleSaveEdit = () => {
+    if (editingIndex === null || 
+        !editedEvent.title || 
+        !editedEvent.description || 
+        !editedEvent.imageSrc || 
+        !editedEvent.date) return;
+
+    setEvents(prev => {
+      const updatedEvents = [...prev];
+      updatedEvents[editingIndex] = {
+        ...updatedEvents[editingIndex],
+        ...editedEvent
+      };
+      return updatedEvents;
+    });
+
+    setEditModalOpen(false);
+    setEditingIndex(null);
+  };
+
+  
+
   return (
     <Menu activeLink="events" openModal={() => { }}>
       <div className="p-6 relative">
@@ -237,6 +314,7 @@ export default function Events() {
               onImageClick={(src) => setPreviewImage(src)}
               onReadMore={(event) => setFullScreenEvent(event)}
               onRemove={() => handleRemoveEvent(events.indexOf(event))}
+              onEdit={() => handleEditClick(events.indexOf(event))}
             />
           ))}
         </div>
@@ -411,6 +489,78 @@ export default function Events() {
                     </a>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Edit Event Modal */}
+        {editModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
+              <h2 className="text-xl font-bold text-red-800">Edit Event</h2>
+              <input
+                type="text"
+                placeholder="Title"
+                className="w-full p-2 border rounded"
+                value={editedEvent.title}
+                onChange={(e) => setEditedEvent({ ...editedEvent, title: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Organization"
+                className="w-full p-2 border rounded"
+                value={editedEvent.org}
+                onChange={(e) => setEditedEvent({ ...editedEvent, org: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Organization Link (optional)"
+                className="w-full p-2 border rounded"
+                value={editedEvent.orgLink}
+                onChange={(e) => setEditedEvent({ ...editedEvent, orgLink: e.target.value })}
+              />
+              <input
+                type="date"
+                className="w-full p-2 border rounded"
+                value={editedEvent.date}
+                onChange={(e) => setEditedEvent({ ...editedEvent, date: e.target.value })}
+              />
+              <textarea
+                placeholder="Description"
+                className="w-full p-2 border rounded"
+                rows={3}
+                value={editedEvent.description}
+                onChange={(e) => setEditedEvent({ ...editedEvent, description: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Image URL"
+                className="w-full p-2 border rounded"
+                value={editedEvent.imageSrc}
+                onChange={(e) => setEditedEvent({ ...editedEvent, imageSrc: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Event Page Link"
+                className="w-full p-2 border rounded"
+                value={editedEvent.link}
+                onChange={(e) => setEditedEvent({ ...editedEvent, link: e.target.value })}
+              />
+
+              <div className="flex justify-end gap-2">
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  onClick={() => setEditModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 bg-red-900 text-white rounded hover:bg-red-800"
+                  onClick={handleSaveEdit}
+                >
+                  Save Changes
+                </button>
               </div>
             </div>
           </div>
