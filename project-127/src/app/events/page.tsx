@@ -5,6 +5,7 @@ import Menu from '@/components/menu/menu-texts';
 import { v4 as uuidv4 } from 'uuid';
 
 interface EventCardProps {
+  id: string,
   imageSrc: string;
   date: string;
   org: string;
@@ -137,8 +138,20 @@ const EventCard: React.FC<EventCardProps> = ({
 export default function Events() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [fullScreenEvent, setFullScreenEvent] = useState<null | EventCardProps>(null);
-  const [events, setEvents] = useState<EventCardProps[]>([
+  const [events, setEvents] = useState<EventCardProps[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('events');
+      setEvents(saved ? JSON.parse(saved) : defaultEvents);
+    } catch (e) {
+      console.error('Failed to load events:', e);
+      setEvents(defaultEvents);
+    }
+  }, []);
+  const  defaultEvents: EventCardProps[] = [
     {
+      id: "1",
       imageSrc: "/scifed.jpg",
       date: "May 15, 2025",
       org: "University of the Philippines Cebu",
@@ -148,6 +161,7 @@ export default function Events() {
       link: "https://facebook.com/example-post"
     },
     {
+      id: "2",
       imageSrc: "/set.jpg",
       date: "May 13, 2025",
       org: "UP Cebu Sciences Federation",
@@ -157,6 +171,7 @@ export default function Events() {
       link: "https://facebook.com/example-post"
     },
     {
+      id: "3",
       imageSrc: "/kapehan.jpg",
       date: "May 10, 2025",
       org: "UP Computer Science Guild",
@@ -165,8 +180,13 @@ export default function Events() {
       description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque.",
       link: "https://facebook.com/example-post"
     }
-  ]);
+  ];
 
+  const addEvent = (newEvent: EventCardProps) => {
+    const updated = [...events, newEvent];
+    setEvents(updated);
+    localStorage.setItem("events", JSON.stringify(updated));
+  };
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
   const [showModal, setShowModal] = useState(false);
@@ -181,23 +201,35 @@ export default function Events() {
   });
 
   useEffect(() => {
-  // Save events to localStorage whenever they change
-  localStorage.setItem('events', JSON.stringify(events));
-  }, [events]);
+    if (typeof window !== 'undefined') {
+      const savedEvents = localStorage.getItem('events');
+      if (savedEvents) {
+        setEvents(JSON.parse(savedEvents));
+      }
+    }
+  }, []);
 
   const handleAddEvent = () => {
     if (!newEvent.title || !newEvent.description || !newEvent.imageSrc || !newEvent.date) return;
 
-    setEvents(prev => [...prev, {
-      imageSrc: newEvent.imageSrc,
-      date: newEvent.date,
-      org: newEvent.org,
-      orgLink: newEvent.orgLink,
-      title: newEvent.title,
-      description: newEvent.description,
-      link: newEvent.link
-    }]);
-    setNewEvent({ title: '', description: '', org: '', orgLink: '', imageSrc: '', date: '', link: '' });
+    const newEventWithId = {
+      id: uuidv4(),
+      ...newEvent
+    };
+
+    const updatedEvents = [...events, newEventWithId];
+    setEvents(updatedEvents);
+    localStorage.setItem('events', JSON.stringify(updatedEvents));
+    
+    setNewEvent({ 
+      title: '', 
+      description: '', 
+      org: '', 
+      orgLink: '', 
+      imageSrc: '', 
+      date: '', 
+      link: '' 
+    });
     setShowModal(false);
   };
 
@@ -216,7 +248,9 @@ export default function Events() {
 
   const handleRemoveEvent = (index: number) => {
     if (window.confirm('Are you sure you want to remove this event?')) {
-      setEvents(prev => prev.filter((_, i) => i !== index));
+      const updatedEvents = events.filter((_, i) => i !== index);
+      setEvents(updatedEvents);
+      localStorage.setItem('events', JSON.stringify(updatedEvents));
     }
   };
 
@@ -234,9 +268,14 @@ export default function Events() {
 
   // Load events from localStorage on component mount
   useEffect(() => {
-    const savedEvents = localStorage.getItem('events');
-    if (savedEvents) {
-      setEvents(JSON.parse(savedEvents));
+    try {
+      const saved = localStorage.getItem('events');
+      if (saved) {
+        setEvents(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error('Failed to load events from localStorage:', e);
+      setEvents([]); // fallback
     }
   }, []);
 
@@ -264,18 +303,17 @@ export default function Events() {
         !editedEvent.imageSrc || 
         !editedEvent.date) return;
 
-    setEvents(prev => {
-      const updatedEvents = [...prev];
-      updatedEvents[editingIndex] = {
-        ...updatedEvents[editingIndex],
-        ...editedEvent
-      };
-      return updatedEvents;
-    });
-
+    const updatedEvents = [...events];
+    updatedEvents[editingIndex] = {
+      ...updatedEvents[editingIndex],
+      ...editedEvent
+    };
+    
+    setEvents(updatedEvents);
+    localStorage.setItem('events', JSON.stringify(updatedEvents));
     setEditModalOpen(false);
     setEditingIndex(null);
-  };
+};
 
   
 
@@ -307,9 +345,9 @@ export default function Events() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAndSortedEvents.map((event, index) => (
+          {filteredAndSortedEvents.map((event) => (
             <EventCard
-              key={index}
+              key={event.id || `${event.title}-${event.date}`}
               {...event}
               onImageClick={(src) => setPreviewImage(src)}
               onReadMore={(event) => setFullScreenEvent(event)}
