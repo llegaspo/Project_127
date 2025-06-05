@@ -450,7 +450,7 @@ export default function Events() {
                 />
                 <input
                   type="text"
-                  placeholder="Event Page Link"
+                  placeholder="Event Post Link"
                   className="w-full p-2 border rounded"
                   value={newEvent.link}
                   onChange={(e) => setNewEvent({ ...newEvent, link: e.target.value })}
@@ -617,7 +617,7 @@ export default function Events() {
                 />
                 <input
                   type="text"
-                  placeholder="Event Page Link"
+                  placeholder="Event Post Link"
                   className="w-full p-2 border rounded"
                   value={editedEvent.link}
                   onChange={(e) => setEditedEvent({ ...editedEvent, link: e.target.value })}

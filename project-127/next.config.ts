@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
       'scontent.fmnl30-3.fna.fbcdn.net',
       'scontent.xx.fbcdn.net',
       'scontent.fna.fbcdn.net',
-      'scontent.cdninstagram.com', // Just in case
+      'scontent.cdninstagram.com',
+      'scontent.fmnl10-1.fna.fbcdn.net', // ⬅️ Add this line
     ],
   },
 };

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Menu from '@/components/menu/menu-texts';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -17,48 +17,87 @@ interface EventCardProps {
 
 export default function Login() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [transitionDirection, setTransitionDirection] = useState('right');
   const [isHovered, setIsHovered] = useState(false);
-  const timeoutRef = useRef(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [events, setEvents] = useState<EventCardProps[]>([]);
 
-  const images = [
-    '/scifed.jpg',
-    '/set.jpg',
-    '/kapehan.jpg',
+  // Default images (fallback)
+  const defaultImages = [
   ];
 
-  // Fetch events from localStorage and sort by date (newest first)
-  useEffect(() => {
-    const loadEvents = () => {
-      try {
-        const storedEvents = typeof window !== 'undefined' ? localStorage.getItem('events') : null;
-        if (storedEvents) {
-          const parsedEvents = JSON.parse(storedEvents);
-          // Sort events by date (newest first)
-          const sortedEvents = [...parsedEvents].sort((a, b) => {
-            return new Date(b.date).getTime() - new Date(a.date).getTime();
-          });
-          setEvents(sortedEvents);
-        }
-      } catch (e) {
-        console.error('Failed to parse events', e);
-      }
-    };
+  // Combine event images with default images
+  const slideshowImages = [
+    ...events.slice(0, 3).map(event => event.imageSrc),
+    ...defaultImages
+  ].filter((value, index, self) => 
+    value && self.indexOf(value) === index // Remove duplicates
+  );
 
-    loadEvents();
+  // Fetch events from API
+  const fetchEvents = useCallback(async () => {
+    try {
+      const res = await fetch("/api/events");
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data: EventCardProps[] = await res.json();
+      setEvents(
+        data.map((evt) => {
+          let parsedDate: string;
 
-    // Listen for changes to events in localStorage
-    const handleStorageChange = () => {
-      loadEvents();
-    };
+          if (evt.date && typeof evt.date === 'string') {
+            const dateObj = new Date(evt.date);
+            parsedDate = isNaN(dateObj.getTime()) ? 'N/A' : dateObj.toISOString().split("T")[0];
+          } else {
+            parsedDate = 'N/A';
+          }
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+          return {
+            ...evt,
+            date: parsedDate,
+          };
+        }).sort((a, b) => { // Sort by date (newest first)
+          if (a.date === 'N/A') return 1;
+          if (b.date === 'N/A') return -1;
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+        })
+      );
+    } catch (e) {
+      console.error("Failed to load events:", e);
+      setEvents([]);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  // Slideshow controls
+  const nextSlide = useCallback(() => {
+    setCurrentIndex(prev => 
+      prev === slideshowImages.length - 1 ? 0 : prev + 1
+    );
+  }, [slideshowImages.length]);
+
+  const prevSlide = useCallback(() => {
+    setCurrentIndex(prev => 
+      prev === 0 ? slideshowImages.length - 1 : prev - 1
+    );
+  }, [slideshowImages.length]);
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    timeoutRef.current = setTimeout(() => {
+      nextSlide();
+    }, 5000);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [currentIndex, nextSlide]);
+
   const formatDate = (dateString: string) => {
-    if (!dateString) return '';
+    if (!dateString || dateString === 'N/A') return dateString;
     const date = new Date(dateString);
     return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -67,94 +106,35 @@ export default function Login() {
     });
   };
 
-  const slideTo = (direction, newIndex) => {
-    setTransitionDirection(direction);
-    setCurrentIndex(newIndex);
-  };
-
-  const prevSlide = () => {
-    clearTimeout(timeoutRef.current);
-    const newIndex = currentIndex === 0 ? images.length - 1 : currentIndex - 1;
-    slideTo('left', newIndex);
-    resetTimer();
-  };
-
-  const nextSlide = () => {
-    clearTimeout(timeoutRef.current);
-    const newIndex = currentIndex === images.length - 1 ? 0 : currentIndex + 1;
-    slideTo('right', newIndex);
-    resetTimer();
-  };
-
-  const resetTimer = () => {
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      nextSlide();
-    }, 5000);
-  };
-
-  useEffect(() => {
-    resetTimer();
-    return () => clearTimeout(timeoutRef.current);
-  }, [currentIndex]);
-
   return (
     <Menu activeLink="overview">
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        height: '90vh',
-        overflow: 'hidden'
-      }}
+      {/* Slideshow Section */}
+      <div 
+        className="relative w-full h-[90vh] overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Blurred Background */}
-        <div style={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          filter: 'blur(8px)',
-          zIndex: 1,
-          alignItems: 'center'
-        }}>
-          <Image
-            src={images[currentIndex]}
-            alt="Background"
-            fill
-            style={{ objectFit: 'cover' }}
-            quality={30}
-            priority
-          />
+        <div className="absolute w-full h-full filter blur-md z-1">
+          {slideshowImages[currentIndex] && (
+            <Image
+              src={slideshowImages[currentIndex]}
+              alt="Background"
+              fill
+              style={{ objectFit: 'cover' }}
+              quality={30}
+              priority
+            />
+          )}
         </div>
 
-        {/* Animated Slides */}
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 2
-        }}>
-          {images.map((image, index) => (
+        {/* Slides */}
+        <div className="absolute w-full h-full z-2">
+          {slideshowImages.map((image, index) => (
             <div
               key={image}
-              style={{
-                position: 'absolute',
-                width: '100%',
-                height: '100%',
-                transition: 'transform 0.8s ease-in-out, opacity 0.8s ease-in-out',
-                transform: index === currentIndex 
-                  ? 'translateX(0)' 
-                  : index < currentIndex 
-                    ? 'translateX(-100%)' 
-                    : 'translateX(100%)',
-                opacity: index === currentIndex ? 1 : 0,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
+              className={`absolute w-full h-full transition-all duration-800 ease-in-out flex justify-center items-center
+                ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
             >
               <Image
                 src={image}
@@ -162,13 +142,7 @@ export default function Login() {
                 width={0}
                 height={0}
                 sizes="100vw"
-                style={{
-                  width: 'auto',
-                  height: 'auto',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain'
-                }}
+                className="w-auto h-auto max-w-full max-h-full object-contain"
                 priority={index === currentIndex}
               />
             </div>
@@ -176,47 +150,31 @@ export default function Login() {
         </div>
 
         {/* Navigation Arrows */}
-        <div 
-          onClick={prevSlide}
-          style={{
-            position: 'absolute',
-            left: '20px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 3,
-            cursor: 'pointer',
-            fontSize: '3rem',
-            color: 'white',
-            textShadow: '0 0 5px rgba(0,0,0,0.5)',
-            userSelect: 'none',
-            opacity: isHovered ? 1 : 0,
-            transition: 'opacity 0.3s ease'
-          }}
-        >
-          &#10094;
-        </div>
-        <div 
-          onClick={nextSlide}
-          style={{
-            position: 'absolute',
-            right: '20px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 3,
-            cursor: 'pointer',
-            fontSize: '3rem',
-            color: 'white',
-            textShadow: '0 0 5px rgba(0,0,0,0.5)',
-            userSelect: 'none',
-            opacity: isHovered ? 1 : 0,
-            transition: 'opacity 0.3s ease'
-          }}
-        >
-          &#10095;
-        </div>
+        {isHovered && (
+          <>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                prevSlide();
+              }}
+              className="absolute left-5 top-1/2 transform -translate-y-1/2 z-3 text-white text-5xl cursor-pointer select-none opacity-70 hover:opacity-100 transition-opacity"
+            >
+              &#10094;
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                nextSlide();
+              }}
+              className="absolute right-5 top-1/2 transform -translate-y-1/2 z-3 text-white text-5xl cursor-pointer select-none opacity-70 hover:opacity-100 transition-opacity"
+            >
+              &#10095;
+            </button>
+          </>
+        )}
       </div>
 
-      {/* Text */}
+      {/* Text Content */}
       <div className="title-style">
         What's UP, mga Iskolar ng Bayan?
       </div>
@@ -225,13 +183,13 @@ export default function Login() {
         Interested to know the various activities and announcements the UP Cebu organization have in store for us? You came at the right place! Get connected and stay informed, mga Iskolar ng Bayan!
       </div>
 
-      {/* Announcements Section */}
+      {/* Latest Events Section */}
       {events.length > 0 && (
         <div className="mt-20 mx-4 md:mx-8 lg:mx-5 mb-8">
           <h2 className="text-4xl font-bold text-red-900 mb-6">Latest Announcements</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.slice(0, 3).map((event, index) => (
-              <div key={event.id || index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+            {events.slice(0, 3).map((event) => (
+              <div key={event.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                 <img
                   src={event.imageSrc}
                   alt="Event"
