@@ -1,23 +1,24 @@
+// app/events/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Menu from '@/components/menu/menu-texts';
 import { v4 as uuidv4 } from 'uuid';
 
 interface EventCardProps {
   id: string,
   imageSrc: string;
-  date: string;
+  date: string; // This will now hold either 'YYYY-MM-DD' or 'N/A'
   org: string;
   orgLink?: string;
   title: string;
   description: string;
   link: string;
-  onReadMore?: (event: { 
-    imageSrc: string; 
-    title: string; 
-    description: string; 
-    org: string; 
+  onReadMore?: (event: {
+    imageSrc: string;
+    title: string;
+    description: string;
+    org: string;
     date: string;
     link: string;
     orgLink?: string;
@@ -28,8 +29,11 @@ interface EventCardProps {
 }
 
 const formatDate = (dateString: string) => {
-  if (!dateString) return '';
+  // If the dateString is 'N/A' or empty, return it directly
+  if (!dateString || dateString === 'N/A') return dateString;
+
   const date = new Date(dateString);
+  // Check if the date is valid before formatting
   return isNaN(date.getTime()) ? dateString : date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -57,139 +61,96 @@ const EventCard: React.FC<EventCardProps> = ({
     : description;
 
   return (
-      <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col relative">
-        {onRemove && (
-          <>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
+    <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col relative">
+      {onRemove && (
+        <>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              // Replace window.confirm with a custom modal for better UX and consistency
+              // For now, keeping window.confirm as it's part of the original code,
+              // but remember to replace it for production.
+              if (window.confirm('Are you sure you want to remove this event?')) {
                 onRemove?.();
-              }}
-              className="absolute top-2 right-2 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-red-500 border border-gray-300"
-              title="Remove event"
-            >
-              ×
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              className="absolute top-2 right-10 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-blue-500 border border-gray-300"
-              title="Edit event"
-            >
-              ✎
-            </button>
-          </>
-        )}
-        <img
-          src={imageSrc}
-          alt="Event"
-          className="w-full h-40 object-cover cursor-pointer"
-          onClick={() => onImageClick?.(imageSrc)}
-        />
-        <div className="p-4 flex-1 flex flex-col">
-          <h3 className="text-sm text-gray-500 mb-1">
-            {formatDate(date)} | {orgLink ? (
-              <a href={orgLink} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">
-                {org}
-              </a>
-            ) : (
-              <span className="text-red-600">{org}</span>
-            )}
-          </h3>
-          {link ? (
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-lg font-bold text-red-800 mb-2 hover:underline"
-            >
-              {title}
+              }
+            }}
+            className="absolute top-2 right-2 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-red-500 border border-gray-300"
+            title="Remove event"
+          >
+            ×
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit?.();
+            }}
+            className="absolute top-2 right-10 bg-white text-gray-500 rounded-full w-6 h-6 flex items-center justify-center text-xs z-10 hover:bg-gray-100 hover:text-blue-500 border border-gray-300"
+            title="Edit event"
+          >
+            ✎
+          </button>
+        </>
+      )}
+      <img
+        src={imageSrc}
+        alt="Event"
+        className="w-full h-40 object-cover cursor-pointer"
+        onClick={() => onImageClick?.(imageSrc)}
+      />
+      <div className="p-4 flex-1 flex flex-col">
+        <h3 className="text-sm text-gray-500 mb-1">
+          {formattedDate} | {orgLink ? (
+            <a href={orgLink} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:underline">
+              {org}
             </a>
           ) : (
-            <h2 className="text-lg font-bold text-red-800 mb-2">{title}</h2>
+            <span className="text-red-600">{org}</span>
           )}
-          <p className="text-sm text-gray-700 flex-grow">
-            {description.length > 100 
-              ? `${description.substring(0, 100)}...` 
-              : description}
-          </p>
-          {description.length > 100 && (
-            <button
-              onClick={() => onReadMore?.({
-                imageSrc: imageSrc,
-                title: title,
-                description: description,
-                org: org,
-                date: formatDate(date),
-                link: link
-              })}
-              className="mt-3 text-xs text-red-600 font-semibold hover:underline self-start"
-            >
-              READ MORE
-            </button>
-          )}
-        </div>
+        </h3>
+        {link ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-lg font-bold text-red-800 mb-2 hover:underline"
+          >
+            {title}
+          </a>
+        ) : (
+          <h2 className="text-lg font-bold text-red-800 mb-2">{title}</h2>
+        )}
+        <p className="text-sm text-gray-700 flex-grow">
+          {truncatedDescription}
+        </p>
+        {description.length > 100 && (
+          <button
+            onClick={() => onReadMore?.({
+              imageSrc: imageSrc,
+              title: title,
+              description: description,
+              org: org,
+              date: formattedDate,
+              link: link,
+              orgLink: orgLink
+            })}
+            className="mt-3 text-xs text-red-600 font-semibold hover:underline self-start"
+          >
+            READ MORE
+          </button>
+        )}
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 export default function Events() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [fullScreenEvent, setFullScreenEvent] = useState<null | EventCardProps>(null);
   const [events, setEvents] = useState<EventCardProps[]>([]);
 
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('events');
-      setEvents(saved ? JSON.parse(saved) : defaultEvents);
-    } catch (e) {
-      console.error('Failed to load events:', e);
-      setEvents(defaultEvents);
-    }
-  }, []);
-  const  defaultEvents: EventCardProps[] = [
-    {
-      id: "1",
-      imageSrc: "/scifed.jpg",
-      date: "May 15, 2025",
-      org: "University of the Philippines Cebu",
-      orgLink: "https://www.facebook.com/upcebuofficial",
-      title: "Lorem ipsum title",
-      description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque.",
-      link: "https://facebook.com/example-post"
-    },
-    {
-      id: "2",
-      imageSrc: "/set.jpg",
-      date: "May 13, 2025",
-      org: "UP Cebu Sciences Federation",
-      orgLink: "https://www.facebook.com/sciencesfed",
-      title: "Lorem ipsum title",
-      description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque.",
-      link: "https://facebook.com/example-post"
-    },
-    {
-      id: "3",
-      imageSrc: "/kapehan.jpg",
-      date: "May 10, 2025",
-      org: "UP Computer Science Guild",
-      orgLink: "https://www.facebook.com/UPCSG",
-      title: "Lorem ipsum title",
-      description: "Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque.",
-      link: "https://facebook.com/example-post"
-    }
-  ];
-
-  const addEvent = (newEvent: EventCardProps) => {
-    const updated = [...events, newEvent];
-    setEvents(updated);
-    localStorage.setItem("events", JSON.stringify(updated));
-  };
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
-  const [showModal, setShowModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
   const [newEvent, setNewEvent] = useState({
     title: '',
     description: '',
@@ -200,61 +161,7 @@ export default function Events() {
     link: ''
   });
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedEvents = localStorage.getItem('events');
-      if (savedEvents) {
-        setEvents(JSON.parse(savedEvents));
-      }
-    }
-  }, []);
-
-  const handleAddEvent = () => {
-    if (!newEvent.title || !newEvent.description || !newEvent.imageSrc || !newEvent.date) return;
-
-    const newEventWithId = {
-      id: uuidv4(),
-      ...newEvent
-    };
-
-    const updatedEvents = [...events, newEventWithId];
-    setEvents(updatedEvents);
-    localStorage.setItem('events', JSON.stringify(updatedEvents));
-    
-    setNewEvent({ 
-      title: '', 
-      description: '', 
-      org: '', 
-      orgLink: '', 
-      imageSrc: '', 
-      date: '', 
-      link: '' 
-    });
-    setShowModal(false);
-  };
-
-  const filteredAndSortedEvents = [...events]
-    .filter(event =>
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.org.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      formatDate(event.date).toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
-      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
-    });
-
-  const handleRemoveEvent = (index: number) => {
-    if (window.confirm('Are you sure you want to remove this event?')) {
-      const updatedEvents = events.filter((_, i) => i !== index);
-      setEvents(updatedEvents);
-      localStorage.setItem('events', JSON.stringify(updatedEvents));
-    }
-  };
-
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editedEvent, setEditedEvent] = useState({
     title: '',
@@ -266,56 +173,186 @@ export default function Events() {
     link: ''
   });
 
-  // Load events from localStorage on component mount
-  useEffect(() => {
+  const fetchEvents = useCallback(async () => {
     try {
-      const saved = localStorage.getItem('events');
-      if (saved) {
-        setEvents(JSON.parse(saved));
-      }
+      const res = await fetch("/api/events");
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const data: EventCardProps[] = await res.json();
+      setEvents(
+        data.map((evt) => {
+          let parsedDate: string;
+
+          // Robust date parsing:
+          if (evt.date && typeof evt.date === 'string') {
+            const dateObj = new Date(evt.date);
+            if (!isNaN(dateObj.getTime())) {
+              // Date is valid, format it to YYYY-MM-DD
+              parsedDate = dateObj.toISOString().split("T")[0];
+            } else {
+              // Date string is invalid, assign a default
+              console.warn(`Invalid date string received for event ID ${evt.id}: "${evt.date}". Assigning 'N/A'.`);
+              parsedDate = 'N/A';
+            }
+          } else {
+            // date field is missing or not a string, assign a default
+            console.warn(`Missing or invalid type for date field for event ID ${evt.id}. Assigning 'N/A'.`);
+            parsedDate = 'N/A';
+          }
+
+          return {
+            ...evt,
+            date: parsedDate,
+          };
+        })
+      );
     } catch (e) {
-      console.error('Failed to load events from localStorage:', e);
-      setEvents([]); // fallback
+      console.error("Failed to load events from SQLite:", e);
+      setEvents([]); // fallback to empty array on fetch error
     }
   }, []);
 
-  // Open edit modal and populate with event data
-  const handleEditClick = (index: number) => {
-    const eventToEdit = events[index];
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  const handleAddEvent = async () => {
+    if (!newEvent.title || !newEvent.description || !newEvent.imageSrc || !newEvent.date) {
+      // Replace alert with a custom message box/toast for better UX
+      alert('Please fill in all required fields (Title, Description, Image URL, Date).');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newEvent),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(`Status ${res.status}: ${errorData.error || res.statusText}`);
+      }
+      const addedEvent = await res.json();
+      // Ensure the newly added event also gets its date formatted correctly if needed
+      const formattedAddedEvent = {
+        ...addedEvent,
+        date: new Date(addedEvent.date).toISOString().split("T")[0] // Assuming the API returns a parsable date
+      };
+      setEvents(prevEvents => [...prevEvents, formattedAddedEvent]);
+      setNewEvent({
+        title: '',
+        description: '',
+        org: '',
+        orgLink: '',
+        imageSrc: '',
+        date: '',
+        link: ''
+      });
+      setShowAddModal(false);
+    } catch (e) {
+      console.error('Failed to add event:', e);
+      // Replace alert with a custom message box/toast for better UX
+      alert(`Failed to add event: ${e instanceof Error ? e.message : 'Unknown error'}. Please try again.`);
+    }
+  };
+
+  const handleRemoveEvent = async (eventId: string) => {
+    // Replace window.confirm with a custom modal for better UX
+    if (window.confirm('Are you sure you want to remove this event?')) {
+      try {
+        const res = await fetch(`/api/events/${eventId}`, {
+          method: 'DELETE',
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(`Status ${res.status}: ${errorData.error || res.statusText}`);
+        }
+        setEvents(prevEvents => prevEvents.filter(event => event.id !== eventId));
+      } catch (e) {
+        console.error('Failed to remove event:', e);
+        // Replace alert with a custom message box/toast for better UX
+        alert(`Failed to remove event: ${e instanceof Error ? e.message : 'Unknown error'}. Please try again.`);
+      }
+    }
+  };
+
+  const handleEditClick = (eventToEdit: EventCardProps) => {
     setEditedEvent({
       title: eventToEdit.title,
       description: eventToEdit.description,
       org: eventToEdit.org,
       orgLink: eventToEdit.orgLink || '',
       imageSrc: eventToEdit.imageSrc,
-      date: eventToEdit.date,
+      date: eventToEdit.date, // Pass current date as is, input type="date" handles YYYY-MM-DD
       link: eventToEdit.link
     });
-    setEditingIndex(index);
+    setEditingEventId(eventToEdit.id);
     setEditModalOpen(true);
   };
 
-  // Save edited event
-  const handleSaveEdit = () => {
-    if (editingIndex === null || 
-        !editedEvent.title || 
-        !editedEvent.description || 
-        !editedEvent.imageSrc || 
-        !editedEvent.date) return;
+  const handleSaveEdit = async () => {
+    if (!editingEventId ||
+      !editedEvent.title ||
+      !editedEvent.description ||
+      !editedEvent.imageSrc ||
+      !editedEvent.date) {
+      // Replace alert with a custom message box/toast for better UX
+      alert('Please fill in all required fields (Title, Description, Image URL, Date).');
+      return;
+    }
 
-    const updatedEvents = [...events];
-    updatedEvents[editingIndex] = {
-      ...updatedEvents[editingIndex],
-      ...editedEvent
-    };
-    
-    setEvents(updatedEvents);
-    localStorage.setItem('events', JSON.stringify(updatedEvents));
-    setEditModalOpen(false);
-    setEditingIndex(null);
-};
+    try {
+      const res = await fetch(`/api/events/${editingEventId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedEvent),
+      });
 
-  
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(`Status ${res.status}: ${errorData.error || res.statusText}`);
+      }
+      setEvents(prevEvents =>
+        prevEvents.map(event =>
+          event.id === editingEventId ? { ...event, ...editedEvent } : event
+        )
+      );
+      setEditModalOpen(false);
+      setEditingEventId(null);
+    } catch (e) {
+      console.error('Failed to save edited event:', e);
+      // Replace alert with a custom message box/toast for better UX
+      alert(`Failed to save changes: ${e instanceof Error ? e.message : 'Unknown error'}. Please try again.`);
+    }
+  };
+
+
+  const filteredAndSortedEvents = [...events]
+    .filter(event =>
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.org.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      formatDate(event.date).toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      // Handle 'N/A' dates for sorting
+      const dateA = a.date === 'N/A' ? 0 : new Date(a.date).getTime();
+      const dateB = b.date === 'N/A' ? 0 : new Date(b.date).getTime();
+
+      // If both are 'N/A', maintain relative order or put them at end
+      if (dateA === 0 && dateB === 0) return 0;
+      // If one is 'N/A', put it at the end
+      if (dateA === 0) return 1;
+      if (dateB === 0) return -1;
+
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+    });
 
   return (
     <Menu activeLink="events" openModal={() => { }}>
@@ -347,26 +384,26 @@ export default function Events() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedEvents.map((event) => (
               <EventCard
-                key={event.id || `${event.title}-${event.date}`}
+                key={event.id}
                 {...event}
                 onImageClick={(src) => setPreviewImage(src)}
                 onReadMore={(event) => setFullScreenEvent(event)}
-                onRemove={() => handleRemoveEvent(events.indexOf(event))}
-                onEdit={() => handleEditClick(events.indexOf(event))}
+                onRemove={() => handleRemoveEvent(event.id)}
+                onEdit={() => handleEditClick(event)}
               />
             ))}
           </div>
 
           {/* Floating Add Button */}
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => setShowAddModal(true)}
             className="fixed bottom-6 right-6 bg-red-900 hover:bg-red-800 text-white text-3xl w-14 h-14 rounded-full shadow-lg flex items-center justify-center"
           >
             +
           </button>
-          
+
           {/* Add Event Modal */}
-          {showModal && (
+          {showAddModal && (
             <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md space-y-4">
                 <h2 className="text-xl font-bold text-red-800">Add New Event</h2>
@@ -422,7 +459,7 @@ export default function Events() {
                 <div className="flex justify-end gap-2">
                   <button
                     className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                    onClick={() => setShowModal(false)}
+                    onClick={() => setShowAddModal(false)}
                   >
                     Cancel
                   </button>
@@ -474,7 +511,7 @@ export default function Events() {
               </button>
 
               <div className="w-full max-w-6xl my-8 bg-white mt-16">
-                <div 
+                <div
                   className="relative w-full h-[70vh] bg-white flex items-center justify-center p-4 cursor-pointer"
                   onClick={() => {
                     const elem = document.getElementById('fullscreen-image');
@@ -511,7 +548,7 @@ export default function Events() {
                   <p className="text-gray-700 whitespace-pre-line mb-6">
                     {fullScreenEvent.description}
                   </p>
-                  
+
                   {fullScreenEvent.link && (
                     <div className="mt-6 pt-4 border-t border-gray-200">
                       <a

@@ -3,14 +3,16 @@
 import React, { useState } from "react";
 import Menu from '@/components/menu/menu-texts';
 import Link from 'next/link';
-
+import { supabase } from '@/utils/supabaseClient';
+import { useRouter } from "next/navigation";
+import { api } from "@/utils/api";
 export default function AddTask() {
   // Form state
   const [newTask, setNewTask] = useState({
     name: '',
     details: '',
     dueDate: '',
-    priority: 'medium'
+    priority: 'IMPORTANT'
   });
 
   const handleInputChange = (e) => {

@@ -6,12 +6,12 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
@@ -21,8 +21,8 @@ model User {
   lname             String
   email             String        @unique
   password          String
-  createdAt         DateTime      @default(now()) @db.Timestamptz()
-  last_login_at     DateTime      @db.Timestamptz()
+  createdAt         DateTime      @default(now())
+  last_login_at     DateTime      
 
   todo              ToDo[]
   announcement      Announcement[]
@@ -41,12 +41,14 @@ model Announcement {
   id              String          @id @default(cuid()) @map("ann_ID")
   userID          String          @map("user_ID")
   title           String
-  description     String?         @db.Text
-  createdBy       string
-  createdAt       DateTime        @db.Timestamptz()
+  description     String?         
+  createdBy       String
+  createdAt       DateTime        
   Source          AnnouncementSource
 
   user            User            @relation(fields:[userID], references: [id], onDelete: Cascade)
+
+  facebookPost    FacebookPost?    @relation("AnnToPost")
 
   @@index([createdBy, title])
   @@index([createdAt])
@@ -60,19 +62,19 @@ enum StatusType{
 
 model FacebookPost {
   id              String          @id @default(cuid())
-  annID           String          @map("ann_ID")
+  annID           String          @map("ann_ID") @unique
   userID          String          @map("user_ID")
   pageName        String          @map("page_Name")
   fbPostID        String          @unique @map("FB_Post_Id")
   author          String
-  content         String          @db.Text
+  content         String         
   url             String
-  createdAt       DateTime        @db.Timestamptz()
+  createdAt       DateTime        
   status          StatusType
 
-  announcement    Announcement    @relation(fields:[annID], references: [id], onDelete: Cascade)
+  announcement    Announcement   @relation("AnnToPost", fields:[annID], references: [id], onDelete: Cascade)
   user            User            @relation(fields:[userID], references: [id], onDelete: Cascade)
-  fbPageName      FBPage          @relation(fields:[pageName], references [pageName], onDelete: Cascade)
+  fbPageName      FBPage          @relation(fields:[pageName], references: [pageName], onDelete: Cascade)
 
   todos           ToDo[]
 
@@ -80,7 +82,7 @@ model FacebookPost {
 
   @@map("Facebook_Post")
   @@index([id, pageName])
-  @@index[(author)]
+  @@index([author])
 }
 
 enum PriorityType{
@@ -94,9 +96,9 @@ model ToDo {
   userID          String
   fbID            String
   title           String
-  description     String?         @db.Text
+  description     String?        
   dueDate         DateTime        @map("due_Date")
-  createdAt       DateTime        @db.Timestamptz() @default(now())
+  createdAt       DateTime        
   priority        PriorityType
 
   user            User            @relation(fields:[userID], references:[id], onDelete: Cascade)
@@ -122,7 +124,7 @@ model FBPage {
 
   facebookPost    FacebookPost[]
 
-  @index([pageName])
+  @@index([pageName])
 }
 
 
