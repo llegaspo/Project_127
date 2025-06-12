@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  // output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -19,6 +19,8 @@ model User {
   fname             String
   mname             String
   lname             String
+  role              String
+  username          String
   email             String        @unique
   password          String
   createdAt         DateTime      @default(now()) @db.Timestamptz()
@@ -42,14 +44,15 @@ model Announcement {
   userID          String          @map("user_ID")
   title           String
   description     String?         @db.Text
-  createdBy       string
+  createdBy       String
   createdAt       DateTime        @db.Timestamptz()
   Source          AnnouncementSource
 
   user            User            @relation(fields:[userID], references: [id], onDelete: Cascade)
+  fbPost          FacebookPost?
 
   @@index([createdBy, title])
-  @@index([createdAt])
+  @@index([id])
 }
 
 enum StatusType{
@@ -60,7 +63,7 @@ enum StatusType{
 
 model FacebookPost {
   id              String          @id @default(cuid())
-  annID           String          @map("ann_ID")
+  annID           String          @map("ann_ID") @unique
   userID          String          @map("user_ID")
   pageName        String          @map("page_Name")
   fbPostID        String          @unique @map("FB_Post_Id")
@@ -72,7 +75,7 @@ model FacebookPost {
 
   announcement    Announcement    @relation(fields:[annID], references: [id], onDelete: Cascade)
   user            User            @relation(fields:[userID], references: [id], onDelete: Cascade)
-  fbPageName      FBPage          @relation(fields:[pageName], references [pageName], onDelete: Cascade)
+  fbPageName      FBPage          @relation(fields:[pageName], references: [pageName], onDelete: Cascade)
 
   todos           ToDo[]
 
@@ -80,7 +83,6 @@ model FacebookPost {
 
   @@map("Facebook_Post")
   @@index([id, pageName])
-  @@index[(author)]
 }
 
 enum PriorityType{
@@ -122,7 +124,7 @@ model FBPage {
 
   facebookPost    FacebookPost[]
 
-  @index([pageName])
+  @@index([pageName])
 }
 
 
