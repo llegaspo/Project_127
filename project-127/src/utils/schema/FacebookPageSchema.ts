@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import { PageType } from '@prisma/client'
-import { EditToDoSchemaType } from './ToDoSchema'
 
 export const FacebookPageSchema = z.object({
   pageName: z.string(),
@@ -43,11 +42,11 @@ export const EditFacebookPageSchemaDefault : EditFacebookPageSchemaType = {
 }
 
 export const DeleteFacebookPageSchema = z.object({
-  id: z.string()
+  pageName: z.string()
 })
 
 export type DeleteFacebookPageSchemaType = z.infer<typeof DeleteFacebookPageSchema>
 
 export const DeleteFacebookPageDefault : DeleteFacebookPageSchemaType = {
-  id: '',
+  pageName: '',
 }

@@ -2,11 +2,13 @@ import { z } from 'zod'
 import { StatusType } from '@prisma/client'
 
 export const FacebookPostSchema  = z.object({
+  annID: z.string(),
+  userID: z.string(),
   pageName: z.string(),
   fbPostID: z.string(),
   author: z.string(),
   content: z.string(),
-  url: z.string(),
+  url: z.string().url(),
   createdAt: z.date(),
   status: z.nativeEnum(StatusType)
 })
@@ -42,6 +44,8 @@ export const AddFacebookPostSchema = FacebookPostSchema
 export type AddFacebookPostSchemaType = z.infer<typeof AddFacebookPostSchema>
 
 export const AddFacebookPostSchemaDefault : AddFacebookPostSchemaType = {
+  annID: '',
+  userID: '',
   pageName: '',
   fbPostID: '',
   author: '',
@@ -59,6 +63,8 @@ export type EditFacebookPostSchemaType = z.infer<typeof EditFacebookPostSchema>
 
 export const EditFacebookPostSchemaDefault : EditFacebookPostSchemaType = {
   id: '',
+  annID: '',
+  userID: '',
   pageName: '',
   fbPostID: '',
   author: '',
@@ -77,3 +83,4 @@ export type DeleteFacebookPostSchemaType = z.infer<typeof DeleteFacebookPostSche
 export const DeleteFacebookPostSchemaDefault : DeleteFacebookPostSchemaType = {
   id: '',
 }
+

@@ -4,7 +4,9 @@ import { AnnouncementSource } from '@prisma/client';
 export const AnnouncementSchema = z.object({
   title: z.string(),
   description: z.string(),
-  source: z.nativeEnum(AnnouncementSource),
+  createdBy: z.string(),
+  createdAt: z.date(),
+  Source: z.nativeEnum(AnnouncementSource),
 })
 
 export const AddAnnouncementSchema = AnnouncementSchema
@@ -22,7 +24,9 @@ export type AddAnnouncementSchemaType = z.infer<typeof AddAnnouncementSchema>
 export const AddAnnouncementSchemaDefault : AddAnnouncementSchemaType = {
   title: '',
   description: '',
-  source: AnnouncementSource.CUSTOM,
+  createdBy: '',
+  createdAt: new Date(),
+  Source: AnnouncementSource.CUSTOM,
 }
 
 export const EditAnnouncementSchema = AnnouncementSchema.extend({
@@ -34,8 +38,10 @@ export type EditAnnouncementSchemaType = z.infer<typeof EditAnnouncementSchema>
 export const  EditAnnouncementSchemaDefault : EditAnnouncementSchemaType = {
   id: '',
   title: '',
+  createdBy: '',
+  createdAt: new Date(),
   description: '',
-  source: AnnouncementSource.CUSTOM
+  Source: AnnouncementSource.CUSTOM
 }
 
 export const DeleteAnnouncementSchema = z.object({

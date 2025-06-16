@@ -5,6 +5,8 @@ export const UserSchema = z.object({
   fname: z.string(),
   mname: z.string(),
   lname: z.string(),
+  role: z.string(),
+  username: z.string(),
   email: z.string().email(),
   password: z.string(),
 })
@@ -15,6 +17,8 @@ export const UserSchemaDefaults : UserSchemaType = {
   fname: "",
   mname: "",
   lname: "",
+  role: '',
+  username: '',
   email: "",
   password: ""
 }
@@ -36,6 +40,12 @@ export const RegisterSchema = UserSchema.extend({
       path: ["lname"],
       message: "Last name cannot be empty."
   })
+  if(data.username === '')
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['lname'],
+      message: "Username cannot be empty."
+    })
   if(data.email === '')
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -69,8 +79,47 @@ export const RegisterSchemaDefault : RegisterSchemaType = {
   fname: '',
   mname: '',
   lname: '',
+  role: '',
+  username: '',
   email: '',
   confirmEmail: '',
   password: '',
   confirmPassword: ''
+}
+
+export const EditUserSchema = UserSchema.extend({
+  id: z.string()
+})
+
+export type EditUserSchemaType = z.infer<typeof EditUserSchema>
+
+export const EditUserSchemaDefault : EditUserSchemaType = {
+  id: '',
+  fname: '',
+  mname: '',
+  lname: '',
+  username: '',
+  role: '',
+  email: '',
+  password: '',
+}
+
+export const DeleteUserSchema = z.object({
+  id: z.string(),
+})
+
+export type DeleteUserSchemaType = z.infer<typeof DeleteUserSchema>
+
+export const DeleteUserSchemaDefault : DeleteUserSchemaType = {
+  id: ''
+}
+
+export const FetchUserSchema = z.object({
+  id: z.string()
+})
+
+export type FetchUserSchemaType = z.infer<typeof FetchUserSchema>
+
+export const FetchUserSchemaDefault : FetchUserSchemaType = {
+  id: '',
 }
