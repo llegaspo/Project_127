@@ -1,12 +1,14 @@
 import { z } from 'zod';
-import { AnnouncementSource } from '@prisma/client';
 
 export const AnnouncementSchema = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
   createdBy: z.string(),
   createdAt: z.date(),
-  Source: z.nativeEnum(AnnouncementSource),
+  source: z.string(),
+  sourceLink: z.string().url().optional(),
+  imageLink: z.string(),
+  fbPostID: z.string().optional(),
 })
 
 export const AddAnnouncementSchema = AnnouncementSchema
@@ -17,6 +19,12 @@ export const AddAnnouncementSchema = AnnouncementSchema
         path: ['title'],
         message: "Title cannot be empty."
     })
+    if(data.source !== 'CUSTOM' && (!data.sourceLink || data.sourceLink.trim() === ''))
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['sourceLink'],
+        message: 'Source URL cannot be empty for non-custom sources.'
+    })
 })
 
 export type AddAnnouncementSchemaType = z.infer<typeof AddAnnouncementSchema>
@@ -26,7 +34,9 @@ export const AddAnnouncementSchemaDefault : AddAnnouncementSchemaType = {
   description: '',
   createdBy: '',
   createdAt: new Date(),
-  Source: AnnouncementSource.CUSTOM,
+  source: '',
+  sourceLink: '',
+  imageLink: ''
 }
 
 export const EditAnnouncementSchema = AnnouncementSchema.extend({
@@ -41,7 +51,9 @@ export const  EditAnnouncementSchemaDefault : EditAnnouncementSchemaType = {
   createdBy: '',
   createdAt: new Date(),
   description: '',
-  Source: AnnouncementSource.CUSTOM
+  source: '',
+  sourceLink: '',
+  imageLink: ''
 }
 
 export const DeleteAnnouncementSchema = z.object({

@@ -2,9 +2,8 @@ import { z } from 'zod'
 import { StatusType } from '@prisma/client'
 
 export const FacebookPostSchema  = z.object({
-  annID: z.string(),
-  userID: z.string(),
-  pageName: z.string(),
+  annID: z.string().optional(),
+  pageName: z.string().optional(),
   fbPostID: z.string(),
   author: z.string(),
   content: z.string(),
@@ -45,7 +44,6 @@ export type AddFacebookPostSchemaType = z.infer<typeof AddFacebookPostSchema>
 
 export const AddFacebookPostSchemaDefault : AddFacebookPostSchemaType = {
   annID: '',
-  userID: '',
   pageName: '',
   fbPostID: '',
   author: '',
@@ -64,7 +62,6 @@ export type EditFacebookPostSchemaType = z.infer<typeof EditFacebookPostSchema>
 export const EditFacebookPostSchemaDefault : EditFacebookPostSchemaType = {
   id: '',
   annID: '',
-  userID: '',
   pageName: '',
   fbPostID: '',
   author: '',

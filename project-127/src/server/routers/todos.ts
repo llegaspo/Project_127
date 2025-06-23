@@ -12,8 +12,19 @@ export const todoRouter = router({
     .mutation(async ({input}) =>{
       try{
         const newTodo = await prisma.toDo.create({
-          data: input,
+          data:{
+            ...input,
+          userID: '',
+          fbID: input.fbID?.trim() || undefined,
+          },
       });
+        if(input.fbID){
+          await prisma.facebookPost.update({
+            where: {id: input.fbID},
+            data: {todos: {connect: {id: newTodo.id}}}
+        })
+      }
+
       if(newTodo)
         return {message: 'To do created Successfully'}
       else
@@ -81,12 +92,20 @@ export const todoRouter = router({
             id: input.id,
         },
           data:{
+            userID: '',
+            fbID: input.fbID?.trim() || undefined,
             title: input.title,
             description: input.description,
             dueDate: input.dueDate,
             priority: input.priority,
       }
       });
+        if(todoUpdate.fbID){
+          await prisma.facebookPost.update({
+            where: {id: todoUpdate.fbID},
+            data: {todos: {connect: {id: input.id}}}
+        })
+      }
 
       if(!todoUpdate)
         return {message: "Cannot update to do."}

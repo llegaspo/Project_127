@@ -5,7 +5,6 @@ export const UserSchema = z.object({
   fname: z.string(),
   mname: z.string(),
   lname: z.string(),
-  role: z.string(),
   username: z.string(),
   email: z.string().email(),
   password: z.string(),
@@ -17,7 +16,6 @@ export const UserSchemaDefaults : UserSchemaType = {
   fname: "",
   mname: "",
   lname: "",
-  role: '',
   username: '',
   email: "",
   password: ""
@@ -79,7 +77,6 @@ export const RegisterSchemaDefault : RegisterSchemaType = {
   fname: '',
   mname: '',
   lname: '',
-  role: '',
   username: '',
   email: '',
   confirmEmail: '',
@@ -99,7 +96,6 @@ export const EditUserSchemaDefault : EditUserSchemaType = {
   mname: '',
   lname: '',
   username: '',
-  role: '',
   email: '',
   password: '',
 }

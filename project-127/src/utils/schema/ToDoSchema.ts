@@ -5,7 +5,8 @@ const today = new Date()
 
 export const ToDoSchema = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
+  fbID: z.string().optional(),
   dueDate: z.date(),
   priority: z.nativeEnum(PriorityType)
 })

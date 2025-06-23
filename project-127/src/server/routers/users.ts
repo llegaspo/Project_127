@@ -15,6 +15,7 @@ export const userRouter = router({
           data: {
             ...input,
           createdAt: new Date(),
+          role: 'USER',
           last_login_at: new Date(),
         },
       });
@@ -88,7 +89,6 @@ export const userRouter = router({
             fname: input.fname,
             mname: input.mname,
             lname: input.lname,
-            role: input.role,
             username: input.username,
             email: input.email,
             password: input.password,

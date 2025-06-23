@@ -12,10 +12,22 @@ export const facebookPostRouter = router({
     .mutation(async ({input}) =>{
       try{
         const newFBPost= await prisma.facebookPost.create({
-          data: input,
+          data:{
+            annID: undefined,
+            userID: '',
+            pageName: input.pageName?.trim() || undefined,
+            fbPostID: input.fbPostID,
+            author: input.author,
+            content: input.content,
+            url: input.url,
+            createdAt: input.createdAt,
+            status: input.status
+        } ,
       });
+
+
       if(newFBPost)
-        return {message: 'FacebookPost created Successfully'}
+        return {message: 'FacebookPost create Successfully'}
       else
         return {message: 'FacebookPost cannot be created'}
  }

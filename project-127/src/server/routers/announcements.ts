@@ -6,18 +6,38 @@ import { DeleteAnnouncementSchema,
 import { prisma } from '@/server/db';
 
 
-export const announcementSchema = router({
+export const announcementRouter = router({
   create: publicProcedure
     .input(AddAnnouncementSchema)
     .mutation(async ({input}) =>{
       try{
-        const newTodo = await prisma.announcement.create({
+
+        const newAnnouncement= await prisma.announcement.create({
           data: {
-          userID: '',
-          ...input
+            userID: '',
+            title: input.title,
+            createdBy: input.createdBy,
+            createdAt: input.createdAt,
+            source: input.source,
+            description: input.description?.trim() || undefined,
+            sourceLink: input.sourceLink?.trim() || undefined,
+            imageLink: input.imageLink?.trim() || undefined,
+            fbPost: input.fbPostID ? {connect: {id: input.fbPostID}}: undefined,
         }
+
       });
-      if(newTodo)
+
+      //connect the created annoucement to the facebook post it refers
+      if(input.fbPostID){
+        await prisma.facebookPost.update({
+          where: {id: input.fbPostID},
+          data: {annID: newAnnouncement.id}
+        })
+      }
+
+
+
+      if(newAnnouncement)
         return {message: 'Announcement created Successfully'}
       else
         return {message: 'Announcement cannot be created'}
@@ -85,9 +105,13 @@ export const announcementSchema = router({
         },
           data:{
             title: input.title,
-            description: input.description,
+            imageLink: input.imageLink?.trim() || undefined,
+            description: input.description?.trim() || undefined,
             createdBy: input.createdBy,
             createdAt: input.createdAt,
+            source: input.source,
+            sourceLink: input.sourceLink?.trim() || undefined,
+            fbPost: input.fbPostID ? {connect: {id: input.fbPostID}} : undefined
       }
       });
 
